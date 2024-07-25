@@ -11,9 +11,9 @@ void reverseOrder_inParallel()
 
   // No two threads interact with the same entry so this is thread safe
   #pragma omp parallel for
-  for( i=0; i<dataSize/2; i++ )
+  for ( i = 0; i < dataSize / 2; i++ )
   {
-    swapEntries( i, dataSize-1-i );
+    swapEntries( i, dataSize - 1 - i );
   }
 
   return;
@@ -27,9 +27,9 @@ void sortByID_inParallel()
 
   // Initialise temporary array with the data array's values
   #pragma omp parallel for
-  for( i=0; i<dataSize; i++ )
+  for ( i = 0; i < dataSize; i++ )
   {
-    temp[i].name = (char*) malloc( strlen(orderedData[i].name)*sizeof(char) );
+    temp[i].name = (char*) malloc( strlen(orderedData[i].name) * sizeof(char) );
     strcpy(temp[i].name, orderedData[i].name);
     temp[i].id = orderedData[i].id;
   }
@@ -37,15 +37,15 @@ void sortByID_inParallel()
   // Count how many items' IDs are smaller than an item's ID and place the latter item
   // into the correct place in the list
   #pragma omp parallel for private(j)
-  for( i=0; i<dataSize; i++ )
+  for ( i = 0; i < dataSize; i++ )
   {
     int count = 0;
 
-    for( j=0; j<dataSize; j++ )
+    for ( j = 0; j < dataSize; j++ )
     {
       // If another item's ID is the same as the current item's ID, the count is
       // incremented to ensure the items are put in different places in the data array
-      if( temp[i].id>temp[j].id || ( temp[i].id==temp[j].id && i!=j && j>i ) )
+      if ( temp[i].id > temp[j].id || ( temp[i].id == temp[j].id && i != j && j > i ) )
       {
         count++;
       }
@@ -70,7 +70,7 @@ void shuffle_inParallel()
   unsigned int state;
 
   #pragma omp parallel for private(state)
-  for( i=0; i<dataSize*(dataSize-1)/2; i++ )
+  for ( i = 0; i < dataSize * (dataSize - 1) / 2; i++ )
   {
     // Use a separate state for each thread with seeds unique to each thread. Include
     // i in the bitwise XOR in case a thread has multiple iterations that occur in
@@ -83,7 +83,7 @@ void shuffle_inParallel()
 
     // Continuously generate random indices for item 2 until the index is different
     // to item 1
-    while( item1==item2 )
+    while ( item1 == item2 )
     {
       item2 = rand_r(&state) % dataSize;
     }
@@ -100,7 +100,7 @@ void removeLastItem_threadSafe()
 {
   // Decrease the size of the data array
   #pragma omp atomic
-    dataSize--;
+  dataSize--;
 
   return;
 }
@@ -111,7 +111,7 @@ int main( int argc, char **argv )
     srand( time(NULL) );
 
     // Make sure we have exactly 1 command line argument after executable name
-    if( argc != 2 )
+    if ( argc != 2 )
     {
         printf( "Enter a single command line argument for the operation required:\n(1) Reverse the order.\n(2) Sort in order of increasing ID.\n" );
         printf( "(3) Shuffle.\n(4) Remove all items from the end in a parallel loop.\n" );
@@ -120,7 +120,8 @@ int main( int argc, char **argv )
 
     // Convert argument to an option number, and ensure it is in the valid range. Note argv[0] is the executable name
     int option = atoi( argv[1] );
-    if( option<=0 || option>4 )
+
+    if ( option <= 0 || option > 4 )
     {
         printf( "Option number '%s' invalid.\n", argv[1] );
         return EXIT_FAILURE;
@@ -130,7 +131,7 @@ int main( int argc, char **argv )
     printf( "Performing option '%i' using %i OpenMP thread(s).\n\n", option, omp_get_max_threads() );
 
     // Loads the data from file
-    if( loadOrderedData()<0 ) return EXIT_FAILURE;
+    if ( loadOrderedData()<0 ) return EXIT_FAILURE;
 
     // Print the initial ordered data to screen
     printf( "Before the operation:\n" );
@@ -139,7 +140,7 @@ int main( int argc, char **argv )
     // Perform an operation on the data depending on the option entered on the command line
     int i, initialDataSize = dataSize;
 
-    switch( option )
+    switch ( option )
     {
         case 1:
             reverseOrder_inParallel();
@@ -155,7 +156,7 @@ int main( int argc, char **argv )
 
         case 4:
             #pragma omp parallel for
-            for( i=0; i<initialDataSize; i++ )
+            for( i = 0; i < initialDataSize; i++ )
                 removeLastItem_threadSafe();
             break;
 

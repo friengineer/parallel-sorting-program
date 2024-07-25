@@ -18,11 +18,13 @@ int initialDataSize;
 
 // Loads the ordered data from the local file "orderedData.txt"
 #define MAX_LINE_LENGTH 128
+
 int loadOrderedData()
 {
     // Try to open up the file.
     FILE *fileIn = fopen( "orderedData.txt", "rt" );
-    if( !fileIn )
+
+    if ( !fileIn )
     {
         printf( "Could not open the local file 'orderedData.txt' for reading.\n" );
         return -1;
@@ -34,7 +36,8 @@ int loadOrderedData()
     // First line should be a single integer, corresponding to the total number of data items
     fgets( line, MAX_LINE_LENGTH, fileIn );
     dataSize = atoi( line );
-    if( dataSize <= 0 )
+
+    if ( dataSize <= 0 )
     {
         printf( "Could not parse first line of 'orderedData.txt' as a positive integer; has the file been corrupted?\n" );
         fclose( fileIn );
@@ -45,8 +48,9 @@ int loadOrderedData()
     initialDataSize = dataSize;
 
     // Allocate memory for the full data list
-    orderedData = (Entry_t*) malloc( dataSize*sizeof(Entry_t) );
-    if( !orderedData )
+    orderedData = (Entry_t*) malloc( dataSize * sizeof(Entry_t) );
+
+    if ( !orderedData )
     {
         printf( "Could not allocate memory for the %i entries expected for the data list.\n", dataSize );
         fclose( fileIn );
@@ -56,7 +60,8 @@ int loadOrderedData()
     // Read the data in line by line, adding to the ordered data array. This assumes a very specific format
     // for how the data is stored in the file, but should work fine with the example provided
     int lineNum;
-    for( lineNum=0; lineNum<dataSize; lineNum++ )
+
+    for ( lineNum = 0; lineNum < dataSize; lineNum++ )
     {
         // Read in the full line
         fgets( line, MAX_LINE_LENGTH, fileIn );
@@ -66,7 +71,7 @@ int loadOrderedData()
 
         // Copy everything up to the separator into the 'name' field and add the null character to the end
         int length = strlen(line) - strlen(separator);
-        orderedData[lineNum].name = (char*) malloc( (length+1)*sizeof(char) );
+        orderedData[lineNum].name = (char*) malloc( (length + 1) * sizeof(char) );
         strncpy( orderedData[lineNum].name, line, length );
 	    orderedData[lineNum].name[length] = '\0';
 
@@ -83,15 +88,16 @@ int loadOrderedData()
 void printData()
 {
     // Simple message for an empty data array
-    if( !dataSize )
+    if ( !dataSize )
     {
         printf( "The data array is empty.\n" );
         return;
     }
 
-    // Output ach entry in turn, one line each
+    // Output each entry in turn, one line each
     int i;
-    for( i=0; i<dataSize; i++ )
+    
+    for ( i = 0; i < dataSize; i++ )
         printf( "Index %i  \t:\t%s (id=%i)\n", i, orderedData[i].name, orderedData[i].id );
 }
 
@@ -101,8 +107,8 @@ void deleteOrderedData()
     int i;
 
     // Free up all of the memory allocated for the 'name' fields
-    for( i=0; i<initialDataSize; i++ )
-        if( orderedData[i].name != NULL )
+    for ( i = 0; i < initialDataSize; i++ )
+        if ( orderedData[i].name != NULL )
             free( orderedData[i].name );
 
     // Free up the array itself
@@ -113,7 +119,7 @@ void deleteOrderedData()
 void swapEntries( int i, int j )
 {
     // Only continue if the index values are valid
-    if( i<0 || j<0 || i>=dataSize || j>=dataSize || i==j )
+    if ( i < 0 || j < 0 || i >= dataSize || j >= dataSize || i == j )
     {
         printf( "Cannot swap entries %i and %i: One or both indices out of range, or both the same.\n", i, j );
         return;
@@ -135,4 +141,3 @@ int randomEntryIndex()
 {
     return rand() % dataSize;
 }
-
